@@ -60,10 +60,15 @@ function GetTableData(realm){
                     let salePrice = 0;
     
                     let historyItems = [];
+                    let historyAmount = 0;
                     for (let sale of marketItem.History){
-                        salePoints += (sale.Added - sale.PurchaseDate);
-                        salePrice += sale.PricePerUnit;
+                        if(!sale.IsHq){
+                            salePoints += (sale.Added - sale.PurchaseDate);
+                            salePrice += sale.PricePerUnit;
+                            historyAmount++;
+                        }
                         let newItem = {
+                            hq: sale.IsHQ,
                             retainer: sale.CharacterName,
                             quantity: sale.Quantity,
                             price_per_unit: sale.PricePerUnit,
@@ -76,6 +81,7 @@ function GetTableData(realm){
                     let subListings = [];
                     for (let listItem of marketItem.Prices){
                         let newItem = {
+                            hq: listItem.IsHQ,
                             retainer: listItem.RetainerName,
                             quantity: listItem.Quantity,
                             price_per_unit: listItem.PricePerUnit,
@@ -85,8 +91,9 @@ function GetTableData(realm){
                         subListings.push(newItem);
                     }
                     
-                    salePoints = Math.log(Math.sqrt(Math.round(salePoints / marketItem.History.length))).toFixed(2);
-                    let averageSalePrice = Math.round(salePrice / marketItem.History.length);
+                    salePoints = Math.log(Math.sqrt(Math.round(salePoints / historyAmount))).toFixed(2);
+                    let averageSalePrice = Math.round(salePrice / historyAmount);
+
                     itemObject = {
                         ID: item.ID,
                         item_name: item.Name,

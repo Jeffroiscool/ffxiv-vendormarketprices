@@ -69,6 +69,7 @@
                                 hover
                                 small
                             >
+                                <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
                                 <template slot="sold_on" slot-scope="data"> {{ new Date(data.value * 1000).toLocaleString() }} </template>
                             </b-table>
                             <b-table v-else :items="row.item.sub_listings"
@@ -77,7 +78,9 @@
                                 dark 
                                 hover
                                 small
-                            ></b-table>
+                            >
+                                <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
+                            </b-table>
                         </template>
                     </b-table>
                 </div>
