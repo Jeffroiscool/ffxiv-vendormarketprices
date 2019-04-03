@@ -1,6 +1,6 @@
 async function GetMarketValuesShopItems(jsonData, realm){
     let item_ids = GetShopItemIds(jsonData);
-    let url = `https://staging.xivapi.com/market/items?ids=${item_ids}&max_history=50&servers=${realm}`;
+    let url = `https://xivapi.com/market/items?ids=${item_ids}&max_history=50&servers=${realm}`;
     return await fetch(url).then(response => response.json());;
 }
 
