@@ -5,7 +5,6 @@
         <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <script src="//unpkg.com/@babel/polyfill@latest/dist/polyfill.min.js"></script>
         <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
         <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
@@ -21,77 +20,102 @@
                 <div class="row">
                     <br/>
                 </div>
-                <div class="row" id="app">
+                <div class="container" id="app">
                     <div class="row">
-                        <div class="col">
-                            Select a realm to get the market data from!
-                        </div>
-                        <div class="col">
-                            <b-form-select v-model="selected" :options="servers"></b-form-select>
-                        </div>
-                        <div class="col">
-                            <b-button v-on:click="getData" class="mr-2" variant="primary">
-                                Get Data
-                            </b-button>
-                        </div>
+                        Select a realm to get the market data from!
+                        <br />
+                        <br />
                     </div>
                     <div class="row">
-                        <br/>
-                        <br/>
-                        <br/>
+                        <b-form-group>
+                            <b-input-group>
+                                <b-form-select v-model="selected" :options="servers"></b-form-select>
+                                <b-input-group-append>
+                                    <b-button v-on:click="getData" class="mr-2" variant="primary">
+                                        Get Data
+                                    </b-button>
+                                </b-input-group-append>
+                            </b-input-group>
+                        </b-form-group>
                     </div>
-                    <b-table 
-                        thead-tr-class="table-primary"
-                        striped 
-                        dark 
-                        hover
-                        small
-                        :sort-by.sync="sortBy"
-                        :sort-desc.sync="sortDesc"
-                        :fields="fields"
-                        :items="items"
-                    >
-                        <template slot="show_listings" slot-scope="row">
-                            <b-button size="sm" @click="row.toggleDetails" v-on:click="toggleHistory(false)" class="mr-2" variant="primary">
-                                {{ row.detailsShowing ? 'Hide' : 'Show'}} Listings
-                            </b-button>
-                        </template>
-                        <template slot="show_history" slot-scope="row">
-                            <b-button size="sm" @click="row.toggleDetails" v-on:click="toggleHistory(true)" class="mr-2" variant="primary">
-                                {{ row.detailsShowing ? 'Hide' : 'Show'}} History
-                            </b-button>
-                        </template>
-                        <template slot="row-details" slot-scope="row">
-                            <b-table v-if="isHistory" :items="row.item.history"
-                                thead-tr-class="table-primary"
-                                striped 
-                                dark 
-                                hover
-                                small
-                            >
-                                <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
-                                <template slot="sold_on" slot-scope="data"> {{ new Date(data.value * 1000).toLocaleString() }} </template>
-                            </b-table>
-                            <b-table v-else :items="row.item.sub_listings"
-                                thead-tr-class="table-primary"
-                                striped 
-                                dark 
-                                hover
-                                small
-                            >
-                                <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
-                            </b-table>
-                        </template>
-                    </b-table>
+                    <div class="row no-gutters">
+                        <div class="col">
+                        </div>
+                        <div class="col">
+                        </div>
+                        <div class="col">
+                            <b-form-group>
+                                <b-input-group>
+                                    <b-form-input v-model="keyword" placeholder="Type to Search"></b-form-input>
+                                    <b-input-group-append>
+                                        <b-button :disabled="!keyword" @click="keyword = ''">Clear</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                            </b-form-group>
+                        </div>
+                        <br />
+                    </div>
+                    <div class="row">
+                        <b-table 
+                            thead-tr-class="table-primary"
+                            striped 
+                            dark 
+                            hover
+                            small
+                            :sort-by.sync="sortBy"
+                            :sort-desc.sync="sortDesc"
+                            :fields="fields"
+                            :items="filteredItems"
+                            :busy.sync="isBusy"
+                        >
+                            <div slot="table-busy" class="text-center text-primary my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                            <template slot="show_listings" slot-scope="row">
+                                <b-button size="sm" @click="row.toggleDetails" v-on:click="toggleHistoryListing(false)" class="mr-2" variant="primary">
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} Listings
+                                </b-button>
+                            </template>
+                            <template slot="show_history" slot-scope="row">
+                                <b-button size="sm" @click="row.toggleDetails" v-on:click="toggleHistoryListing(true)" class="mr-2" variant="primary">
+                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} History
+                                </b-button>
+                            </template>
+                            <template slot="row-details" slot-scope="row">
+                                <b-table v-if="isHistory" :items="row.item.history"
+                                    thead-tr-class="table-primary"
+                                    striped 
+                                    dark 
+                                    hover
+                                    small
+                                >
+                                    <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
+                                    <template slot="sold_on" slot-scope="data"> {{ new Date(data.value * 1000).toLocaleString() }} </template>
+                                </b-table>
+                                <b-table v-else :items="row.item.sub_listings"
+                                    thead-tr-class="table-primary"
+                                    striped 
+                                    dark 
+                                    hover
+                                    small
+                                >
+                                    <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
+                                </b-table>
+                            </template>
+                        </b-table>
+                    </div>
                 </div>
             </div>
         </div>
         <script>
-            new Vue({
+            let vm = new Vue({
                 el: '#app',
                 data: () => ({
+                    isBusy: false,
                     sortBy: "ID",
                     sortDesc: false,
+                    tableData: null,
                     fields: [
                         { key: "ID", sortable: true},
                         { key: "item_name", sortable: true},
@@ -111,17 +135,31 @@
                         { key: "show_listings"},
                         { key: "show_history"}
                     ],
-                    items: tableData,
+                    items: "filteredItems",
+                    keyword: null,
                     selected: "Ragnarok",
                     servers: serverOptions
                 }),
                 methods: {
-                    toggleHistory: function (value){
+                    toggleHistoryListing: function (value){
                         this.isHistory = value;
                     },
-                    getData: function() {
-                        tableData.splice(0);
-                        GetTableData(this.selected);
+                    getData: async function() {
+                        this.isBusy = true;
+                        console.log("hi");
+                        if(this.tableData !== null){
+                            this.tableData.splice(0);
+                        }
+                        GetTableData(this.selected).then(data => {
+                            this.tableData = data;
+                            this.isBusy = false;
+                            console.log("bye");
+                        });
+                    }
+                },
+                computed: {
+                    filteredItems: function () {
+                        return this.keyword ? this.tableData.filter(item => item.item_name.toLowerCase().includes(this.keyword.toLowerCase())) : this.tableData;
                     }
                 }
             })
