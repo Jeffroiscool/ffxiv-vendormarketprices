@@ -14,97 +14,95 @@
     <body>
         <div class="container">
             <div class="container-fluid">
-                <br/>
-                <br/>
-                <h1>FFXIV - Vendor Items on the Market Board</h1>
-                <div class="row">
-                    <br/>
-                </div>
-                <div class="container" id="app">
-                    <div class="row">
-                        Select a realm to get the market data from!
-                        <br />
-                        <br />
-                    </div>
-                    <div class="row">
-                        <b-form-group>
-                            <b-input-group>
-                                <b-form-select v-model="selected" :options="servers"></b-form-select>
-                                <b-input-group-append>
-                                    <b-button v-on:click="getData" class="mr-2" variant="primary">
-                                        Get Data
-                                    </b-button>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-                    </div>
-                    <div class="row no-gutters">
-                        <div class="col">
-                        </div>
-                        <div class="col">
-                        </div>
-                        <div class="col">
-                            <b-form-group>
-                                <b-input-group>
-                                    <b-form-input v-model="keyword" placeholder="Type to Search"></b-form-input>
-                                    <b-input-group-append>
-                                        <b-button :disabled="!keyword" @click="keyword = ''">Clear</b-button>
-                                    </b-input-group-append>
-                                </b-input-group>
-                            </b-form-group>
-                        </div>
-                        <br />
-                    </div>
-                    <div class="row">
-                        <b-table 
-                            thead-tr-class="table-primary"
-                            striped 
-                            dark 
-                            hover
-                            small
-                            :sort-by.sync="sortBy"
-                            :sort-desc.sync="sortDesc"
-                            :fields="fields"
-                            :items="filteredItems"
-                            :busy.sync="isBusy"
-                        >
-                            <div slot="table-busy" class="text-center text-primary my-2">
-                                <b-spinner class="align-middle"></b-spinner>
-                                <strong>Loading...</strong>
-                            </div>
-                            <template slot="show_listings" slot-scope="row">
-                                <b-button size="sm" @click="row.toggleDetails" v-on:click="toggleHistoryListing(false)" class="mr-2" variant="primary">
-                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} Listings
-                                </b-button>
-                            </template>
-                            <template slot="show_history" slot-scope="row">
-                                <b-button size="sm" @click="row.toggleDetails" v-on:click="toggleHistoryListing(true)" class="mr-2" variant="primary">
-                                    {{ row.detailsShowing ? 'Hide' : 'Show'}} History
-                                </b-button>
-                            </template>
-                            <template slot="row-details" slot-scope="row">
-                                <b-table v-if="isHistory" :items="row.item.history"
+                <div id="app">
+                    <b-container class="pt-3">
+                        <b-row class="mb-2">
+                            <b-col>
+                                <h1>FFXIV - Vendor Items on the Market Board</h1>
+                            </b-col>
+                        </b-row>
+                        <b-row class="mb-2">
+                            <b-col>
+                                Select a realm to get the market data from!
+                            </b-col>
+                        </b-row>
+                        <b-row class="mb-2">
+                            <b-col cols="4">
+                                <b-form-group>
+                                    <b-input-group>
+                                        <b-form-select v-model="selected" :options="servers"></b-form-select>
+                                        <b-input-group-append>
+                                            <b-button v-on:click="getData" class="mr-2" variant="primary">
+                                                Get Data
+                                            </b-button>
+                                        </b-input-group-append>
+                                    </b-input-group>
+                                </b-form-group>
+                            </b-col>
+                            <b-col cols="4" offset="4">
+                                <b-form-group>
+                                    <b-input-group>
+                                        <b-form-input v-model="keyword" placeholder="Search.."></b-form-input>
+                                        <b-input-group-append>
+                                            <b-button :disabled="!keyword" @click="keyword = ''">Clear</b-button>
+                                        </b-input-group-append>
+                                    </b-input-group>
+                                </b-form-group>
+                            </b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>
+                                <b-table 
                                     thead-tr-class="table-primary"
                                     striped 
                                     dark 
                                     hover
                                     small
+                                    :sort-by.sync="sortBy"
+                                    :sort-desc.sync="sortDesc"
+                                    :fields="fields"
+                                    :items="filteredItems"
+                                    :busy.sync="isBusy"
                                 >
-                                    <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
-                                    <template slot="sold_on" slot-scope="data"> {{ new Date(data.value * 1000).toLocaleString() }} </template>
+                                    <div slot="table-busy" class="text-center text-primary my-2">
+                                        <b-spinner class="align-middle"></b-spinner>
+                                        <strong>Loading...</strong>
+                                    </div>
+                                    <template slot="listings" slot-scope="row">
+                                        <b-button size="sm" @click="toggleHistoryListing(row, 1)" class="mr-2" variant="primary">
+                                            Listings
+                                        </b-button>
+                                    </template>
+                                    <template slot="history" slot-scope="row">
+                                        <b-button size="sm" @click="toggleHistoryListing(row, 2)" class="mr-2" variant="primary">
+                                            History
+                                        </b-button>
+                                    </template>
+                                    <template slot="row-details" slot-scope="row">
+                                        <b-table v-if="row.item.type_showing === 2" :items="row.item.history"
+                                            thead-tr-class="table-primary"
+                                            striped 
+                                            dark 
+                                            hover
+                                            small
+                                        >
+                                            <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
+                                            <template slot="sold_on" slot-scope="data"> {{ new Date(data.value * 1000).toLocaleString() }} </template>
+                                        </b-table>
+                                        <b-table v-if="row.item.type_showing === 1" :items="row.item.sub_listings"
+                                            thead-tr-class="table-primary"
+                                            striped 
+                                            dark 
+                                            hover
+                                            small
+                                        >
+                                            <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
+                                        </b-table>
+                                    </template>
                                 </b-table>
-                                <b-table v-else :items="row.item.sub_listings"
-                                    thead-tr-class="table-primary"
-                                    striped 
-                                    dark 
-                                    hover
-                                    small
-                                >
-                                    <template slot="hq" slot-scope="data"> {{ data.value ? 'Yes' : 'No' }} </template>
-                                </b-table>
-                            </template>
-                        </b-table>
-                    </div>
+                            </b-col>
+                        </b-row>
+                    </b-container>
                 </div>
             </div>
         </div>
@@ -119,7 +117,7 @@
                     fields: [
                         { key: "ID", sortable: true},
                         { key: "item_name", sortable: true},
-                        { key: "listings", sortable: true},
+                        { key: "on_market", sortable: true},
                         { key: "vendor_price", sortable: true},
                         { key: "lowest_price", sortable: true},
                         { key: "avg_price", sortable: true},
@@ -132,8 +130,8 @@
                                 return new Date(value * 1000).toLocaleString();
                             }
                         },
-                        { key: "show_listings"},
-                        { key: "show_history"}
+                        { key: "listings"},
+                        { key: "history"}
                     ],
                     items: "filteredItems",
                     keyword: null,
@@ -141,19 +139,29 @@
                     servers: serverOptions
                 }),
                 methods: {
-                    toggleHistoryListing: function (value){
-                        this.isHistory = value;
+                    toggleHistoryListing: function (row, value){
+                        let doToggle = false;
+
+                        if(row.item.type_showing === value || row.item.type_showing === 0){
+                            doToggle = true;
+                        }
+                        
+                        if(row.item.type_showing != value){
+                            row.item.type_showing = value;
+                        }
+
+                        if(doToggle){
+                            row.toggleDetails();
+                        }
                     },
                     getData: async function() {
                         this.isBusy = true;
-                        console.log("hi");
                         if(this.tableData !== null){
                             this.tableData.splice(0);
                         }
                         GetTableData(this.selected).then(data => {
                             this.tableData = data;
                             this.isBusy = false;
-                            console.log("bye");
                         });
                     }
                 },

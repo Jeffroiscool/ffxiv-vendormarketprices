@@ -97,7 +97,7 @@ async function GetTableData(realm){
 					itemObject = {
 						ID: item.ID,
 						item_name: item.Name,
-						listings: marketItem.Prices.length,
+						on_market: marketItem.Prices.length,
 						vendor_price: item.PriceMid,
 						lowest_price: lowestSalePrice,
 						avg_price: averageSalePrice,
@@ -105,7 +105,8 @@ async function GetTableData(realm){
 						time_to_sell: salePoints,
 						last_sale_date: marketItem.History[0].PurchaseDate,
 						sub_listings: subListings,
-						history: historyItems
+						history: historyItems,
+						type_showing: 0
 					};
 				}
 			}
