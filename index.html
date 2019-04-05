@@ -151,8 +151,11 @@
                         }
 
                         if(doToggle){
+                            if(row.detailsShowing){
+                                row.item.type_showing = 0
+                            }
                             row.toggleDetails();
-                        }
+                        }  
                     },
                     getData: async function() {
                         this.isBusy = true;

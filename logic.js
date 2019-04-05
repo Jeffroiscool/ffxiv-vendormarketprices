@@ -46,7 +46,6 @@ GetServers().then(data => {
 async function GetTableData(realm){
 	let tableResult = [];
 	await GetItems(realm).then(data => {
-		console.log(data);
 		for (let [,item] of Object.entries(data.Items)) {
 			let itemObject;
 			for (let marketItem of data.MarketValues){
